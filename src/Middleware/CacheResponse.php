@@ -108,7 +108,9 @@ class CacheResponse
      */
     protected function resolveMinutes($minutes = null)
     {
-        return max($this->getDefaultMinutes(), intval($minutes));
+        return is_null($minutes)
+            ? $this->getDefaultMinutes()
+            : max($this->getDefaultMinutes(), intval($minutes));
     }
 
     /**
