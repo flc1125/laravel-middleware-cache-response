@@ -81,7 +81,7 @@ class CacheResponse
 
         $this->cache_expire_at = $responseCache['cacheExpireAt'];
 
-        return $responseCache
+        return $responseCache;
     }
 
     /**
