@@ -18,73 +18,100 @@ use Illuminate\Http\Response;
 class CacheResponse
 {
     /**
+     * @var \Illuminate\Http\Request
+     */
+    protected $request;
+
+    /**
+     * @var \Closure
+     */
+    protected $next;
+
+    /**
+     * 缓存分钟
+     *
+     * @var int|null
+     */
+    protected $minutes;
+
+    /**
+     * 缓存数据
+     *
+     * @var array
+     */
+    protected $responseCache;
+
+    /**
      * 缓存命中状态，1为命中，0为未命中
      *
      * @var int
      */
-    protected $cache_hit = 1;
+    protected $cacheHit = 1;
 
     /**
      * 缓存Key
      *
      * @var string
      */
-    protected $cache_key;
-
-    /**
-     * 缓存失效时间
-     *
-     * @var string
-     */
-    protected $cache_expire_at;
+    protected $cacheKey;
 
     /**
      * Handle an incoming request
      *
      * @param \Illuminate\Http\Request $request
      * @param \Closure                 $next
+     * @param int|null                 $minutes
      *
      * @return mixed
      */
     public function handle($request, Closure $next, $minutes = null)
     {
-        $responseCache = $this->getResponseCache($request, $next, $minutes);
+        $this->prepare($request, $next, $minutes);
 
-        $response = response($responseCache['content']);
+        $this->responseCache();
+
+        $response = response($this->responseCache['content']);
 
         return $this->addHeaders($response);
     }
 
     /**
-     * 返回Response-Cache
+     * 预备
      *
-     * @param \Illuminate\Http\Request $request
-     * @param Closure                  $next
-     * @param int|null                 $minutes
+     * @return mixed
+     */
+    protected function prepare($request, Closure $next, $minutes = null)
+    {
+        $this->request = $request;
+        $this->next = $next;
+
+        // 初始化值
+        $this->cacheKey = $this->resolveKey();
+        $this->minutes = $this->resolveMinutes($minutes);
+    }
+
+    /**
+     * 生成或读取Response-Cache
      *
      * @return array
      */
-    protected function getResponseCache($request, $next, $minutes)
+    protected function responseCache()
     {
-        $this->cache_key = $key = $this->resolveRequestKey($request);
-
-        $responseCache = Cache::remember(
-            $key,
-            $resolveMinutes = $this->resolveMinutes($minutes),
-            function () use ($request, $next, $resolveMinutes) {
+        $this->responseCache = Cache::remember(
+            $this->cacheKey,
+            $this->minutes,
+            function () {
                 $this->cacheMissed();
 
-                $response = $next($request);
+                $response = ($this->next)($this->request);
 
                 return $this->resolveResponseCache($response) + [
-                    'cacheExpireAt' => Carbon::now()->addMinutes($resolveMinutes)->format('Y-m-d\TH:i:s'),
+                    'cacheExpireAt' => Carbon::now()->addMinutes($this->minutes)->format('Y-m-d H:i:s T'),
                 ];
             }
         );
 
-        $this->cache_expire_at = $responseCache['cacheExpireAt'];
-
-        return $responseCache;
+        return $this->responseCache;
     }
 
     /**
@@ -123,9 +150,9 @@ class CacheResponse
     protected function getHeaders()
     {
         $headers = [
-            'X-Cache' => $this->cache_hit ? 'Hit' : 'Missed',
-            'X-Cache-Key' => $this->cache_key,
-            'X-Cache-ExpireAt' => $this->cache_expire_at,
+            'X-Cache' => $this->cacheHit ? 'Hit from cache' : 'Missed',
+            'X-Cache-Key' => $this->cacheKey,
+            'X-Cache-Expires' => $this->responseCache['cacheExpireAt'],
         ];
 
         return $headers;
@@ -134,13 +161,11 @@ class CacheResponse
     /**
      * 根据请求获取指定的Key
      *
-     * @param Illuminate\Http\Request $request
-     *
      * @return string
      */
-    protected function resolveRequestKey(Request $request)
+    protected function resolveKey()
     {
-        return md5($request->fullUrl());
+        return md5($this->request->fullUrl());
     }
 
     /**
@@ -174,6 +199,6 @@ class CacheResponse
      */
     protected function cacheMissed()
     {
-        $this->cache_hit = 0;
+        $this->cacheHit = 0;
     }
 }
