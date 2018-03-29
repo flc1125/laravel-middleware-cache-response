@@ -16,6 +16,13 @@ use Cache;
 class CacheResponse
 {
     /**
+     * 缓存命中状态，1为命中，0为未命中
+     *
+     * @var integer
+     */
+    protected $cache_hit = 1;
+
+    /**
      * Handle an incoming request.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -44,6 +51,8 @@ class CacheResponse
         $key = $this->resolveRequestKey($request);
 
         return Cache::remember($key, $this->resolveMinutes($minutes), function () use ($request, $next) {
+            $this->cacheMissed();
+
             $response = $next($request);
 
             return $this->resolveResponseCache($response);
@@ -70,9 +79,11 @@ class CacheResponse
      */
     protected function addHeaders($response)
     {
-        return $response->headers->add(
+        $response->headers->add(
             $this->getHeaders()
         );
+
+        return $response;
     }
 
     /**
@@ -83,7 +94,7 @@ class CacheResponse
     protected function getHeaders()
     {
         $headers = [
-            'X-Cache-Hit' => 1,
+            'X-Cache-Hit' => $this->cache_hit,
         ];
 
         return $headers;
@@ -121,5 +132,15 @@ class CacheResponse
     protected function getDefaultMinutes()
     {
         return 10;
+    }
+
+    /**
+     * 缓存未命中
+     *
+     * @return mixed
+     */
+    protected function cacheMissed()
+    {
+        $this->cache_hit = 0;
     }
 }
