@@ -65,15 +65,19 @@ class CacheResponse
     {
         $this->cache_key = $key = $this->resolveRequestKey($request);
 
-        $responseCache = Cache::remember($key, $resolveMinutes = $this->resolveMinutes($minutes), function () use ($request, $next, $resolveMinutes) {
-            $this->cacheMissed();
+        $responseCache = Cache::remember(
+            $key,
+            $resolveMinutes = $this->resolveMinutes($minutes),
+            function () use ($request, $next, $resolveMinutes) {
+                $this->cacheMissed();
 
-            $response = $next($request);
+                $response = $next($request);
 
-            return $this->resolveResponseCache($response) + [
-                'cacheExpireAt' => Carbon::now()->addMinutes($resolveMinutes)->format('Y-m-d\TH:i:s')
-            ];
-        });
+                return $this->resolveResponseCache($response) + [
+                    'cacheExpireAt' => Carbon::now()->addMinutes($resolveMinutes)->format('Y-m-d\TH:i:s')
+                ];
+            }
+        );
 
         $this->cache_expire_at = $responseCache['cacheExpireAt'];
 
