@@ -1,5 +1,10 @@
 # Laravel中间件-Response缓存
 
+[![Latest Stable Version](https://poser.pugx.org/flc/laravel-middleware-cache-response/v/stable)](https://packagist.org/packages/flc/laravel-middleware-cache-response)
+[![Total Downloads](https://poser.pugx.org/flc/laravel-middleware-cache-response/downloads)](https://packagist.org/packages/flc/laravel-middleware-cache-response)
+![php>=5.4](https://img.shields.io/badge/php->%3D5.4-orange.svg?maxAge=2592000)
+[![License](https://poser.pugx.org/flc/laravel-middleware-cache-response/license)](https://packagist.org/packages/flc/laravel-middleware-cache-response)
+
 ## 功能
 
 - 支持缓存渲染后数据
