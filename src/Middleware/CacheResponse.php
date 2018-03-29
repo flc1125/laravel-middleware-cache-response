@@ -4,6 +4,7 @@ namespace Flc\Laravel\Http\Middleware;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Carbon\Carbon;
 use Closure;
 use Cache;
 
@@ -21,6 +22,20 @@ class CacheResponse
      * @var integer
      */
     protected $cache_hit = 1;
+
+    /**
+     * 缓存Key
+     *
+     * @var string
+     */
+    protected $cache_key;
+
+    /**
+     * 缓存失效时间
+     *
+     * @var string
+     */
+    protected $cache_expire_at;
 
     /**
      * Handle an incoming request.
@@ -48,15 +63,21 @@ class CacheResponse
      */
     protected function getResponseCache($request, $next, $minutes)
     {
-        $key = $this->resolveRequestKey($request);
+        $this->cache_key = $key = $this->resolveRequestKey($request);
 
-        return Cache::remember($key, $this->resolveMinutes($minutes), function () use ($request, $next) {
+        $responseCache = Cache::remember($key, $resolveMinutes = $this->resolveMinutes($minutes), function () use ($request, $next, $resolveMinutes) {
             $this->cacheMissed();
 
             $response = $next($request);
 
-            return $this->resolveResponseCache($response);
+            return $this->resolveResponseCache($response) + [
+                'cacheExpireAt' => Carbon::now()->addMinutes($resolveMinutes)->format('Y-m-d\TH:i:s')
+            ];
         });
+
+        $this->cache_expire_at = $responseCache['cacheExpireAt'];
+
+        return $responseCache
     }
 
     /**
@@ -94,7 +115,9 @@ class CacheResponse
     protected function getHeaders()
     {
         $headers = [
-            'X-Cache-Hit' => $this->cache_hit,
+            'X-Cache'          => $this->cache_hit ? 'Hit' : 'Missed',
+            'X-Cache-Key'      => $this->cache_key,
+            'X-Cache-ExpireAt' => $this->cache_expire_at,
         ];
 
         return $headers;
