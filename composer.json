@@ -1,0 +1,15 @@
+{
+    "name": "flc/laravel-middleware-cache-response",
+    "description": "Laravel中间件-Response缓存",
+    "keywords": ["laravel", "flc", "middleware", "cache", "response", "中间件", "缓存"],
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": ">=5.4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Flc\\Laravel\\Http\\": "src/"
+        }
+    }
+}
