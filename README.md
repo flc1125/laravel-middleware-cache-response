@@ -58,6 +58,6 @@ X-Cache-Key:6c9b19774e2c304a42d200f314d8c80b
 
 - 增加`status`、`header`的支持
 
-## Licenes
+## License
 
 MIT
