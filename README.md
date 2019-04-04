@@ -3,6 +3,7 @@
 [![Latest Stable Version](https://poser.pugx.org/flc/laravel-middleware-cache-response/v/stable)](https://packagist.org/packages/flc/laravel-middleware-cache-response)
 [![Total Downloads](https://poser.pugx.org/flc/laravel-middleware-cache-response/downloads)](https://packagist.org/packages/flc/laravel-middleware-cache-response)
 [![License](https://poser.pugx.org/flc/laravel-middleware-cache-response/license)](https://packagist.org/packages/flc/laravel-middleware-cache-response)
+[![996.icu](https://img.shields.io/badge/link-996.icu-red.svg)](https://996.icu)
 
 ## 功能
 
