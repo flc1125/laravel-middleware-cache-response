@@ -4,6 +4,7 @@
 [![Total Downloads](https://poser.pugx.org/flc/laravel-middleware-cache-response/downloads)](https://packagist.org/packages/flc/laravel-middleware-cache-response)
 [![License](https://poser.pugx.org/flc/laravel-middleware-cache-response/license)](https://packagist.org/packages/flc/laravel-middleware-cache-response)
 [![996.icu](https://img.shields.io/badge/link-996.icu-red.svg)](https://996.icu)
+[![LICENSE](https://img.shields.io/badge/license-Anti%20996-blue.svg)](https://github.com/996icu/996.ICU/blob/master/LICENSE)
 
 ## 功能
 
@@ -61,4 +62,5 @@ X-Cache-Key:6c9b19774e2c304a42d200f314d8c80b
 
 ## License
 
-MIT
+- MIT
+- Anti 996
